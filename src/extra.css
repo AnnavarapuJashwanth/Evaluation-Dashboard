@@ -1,0 +1,31 @@
+.btn-primary {
+  background-color: #4b6cb7 !important;
+  border-color: #4b6cb7 !important;
+}
+
+.btn-primary:hover {
+  background-color: #182848 !important;
+  border-color: #182848 !important;
+}
+
+.btn-outline-primary {
+  color: #4b6cb7 !important;
+  border-color: #4b6cb7 !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: #4b6cb7 !important;
+  color: #fff !important;
+}
+
+.section-title {
+  font-weight: 700;
+  margin-bottom: 40px;
+  text-align: center;
+  color: #182848;
+}
+
+.shadow-card {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  border-radius: 15px;
+}
