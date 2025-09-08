@@ -9,8 +9,12 @@ function Profile() {
   const [form, setForm] = useState({ name: "", email: "", profileImage: "" });
   const [loading, setLoading] = useState(true);
 
-  
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  // Auto-detect API URL (local dev vs production on Render)
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    (window.location.hostname === "localhost"
+      ? "http://localhost:5000"
+      : "https://evaluation-dashboard-9.onrender.com");
 
   // Fetch current profile
   useEffect(() => {
@@ -27,7 +31,7 @@ function Profile() {
       }
     };
     fetchProfile();
-  }, [token]);
+  }, [token, API_URL]);
 
   // Handle update
   const handleSubmit = async (e) => {
