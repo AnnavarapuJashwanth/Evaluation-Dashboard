@@ -9,11 +9,14 @@ function Profile() {
   const [form, setForm] = useState({ name: "", email: "", profileImage: "" });
   const [loading, setLoading] = useState(true);
 
+  // ✅ Use environment variable for API base
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
   // Fetch current profile
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/profile/me", {
+        const res = await axios.get(`${API_URL}/api/profile/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setForm(res.data);
@@ -30,7 +33,7 @@ function Profile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put("http://localhost:5000/api/profile/update", form, {
+      await axios.put(`${API_URL}/api/profile/update`, form, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Profile updated successfully 🎉");
@@ -66,7 +69,7 @@ function Profile() {
             type="email"
             value={form.email}
             placeholder="Email"
-            disabled // Email usually not editable
+            disabled
           />
           <input
             className="form-control mb-3"
