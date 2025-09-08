@@ -3,7 +3,13 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./SignUp.css"; // ✅ custom styles
+import "./SignUp.css";
+
+// ✅ API URL setup (dev vs production)
+const API_URL =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:5000"
+    : import.meta.env.VITE_API_URL;
 
 function SignUp() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
@@ -12,12 +18,14 @@ function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/auth/signup", form);
+      await axios.post(`${API_URL}/api/auth/signup`, form);
+
       toast.success("Signup Successful 🎉 Redirecting to Sign In...", {
         position: "top-center",
         autoClose: 2000,
       });
-      setTimeout(() => navigate("/signin"), 2200); // redirect after toast
+
+      setTimeout(() => navigate("/signin"), 2200);
     } catch (err) {
       toast.error(err.response?.data?.msg || "Signup failed ❌", {
         position: "top-center",

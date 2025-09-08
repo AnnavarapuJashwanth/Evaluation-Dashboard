@@ -5,6 +5,12 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./SignIn.css";
 
+// ✅ API URL setup (dev vs production)
+const API_URL =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:5000"
+    : import.meta.env.VITE_API_URL;
+
 function SignIn() {
   const [form, setForm] = useState({ email: "", password: "" });
   const navigate = useNavigate();
@@ -12,7 +18,7 @@ function SignIn() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/signin", form);
+      const res = await axios.post(`${API_URL}/api/auth/signin`, form);
       localStorage.setItem("token", res.data.token);
 
       toast.success("Login Successful 🎉", {
@@ -20,7 +26,7 @@ function SignIn() {
         autoClose: 2000,
       });
 
-      setTimeout(() => navigate("/"), 2200); // redirect after toast
+      setTimeout(() => navigate("/"), 2200);
     } catch (err) {
       toast.error(err.response?.data?.msg || "Login failed ❌", {
         position: "top-right",

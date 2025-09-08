@@ -14,10 +14,22 @@ const app = express();
 // ✅ Middleware
 app.use(express.json());
 
-// ✅ CORS setup
+// ✅ CORS setup (allow localhost for dev + Netlify for production)
+const allowedOrigins = [
+  "http://localhost:5173",             // Vite default dev server
+  "http://localhost:3000",             // in case you run React on port 3000
+  "https://evaluation4297.netlify.app" // your Netlify deployed frontend
+];
+
 app.use(
   cors({
-    origin: "https://evaluation4297.netlify.app/", // 🔹 replace with your Netlify frontend URL
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
