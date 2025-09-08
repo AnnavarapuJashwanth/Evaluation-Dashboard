@@ -9,7 +9,7 @@ function Profile() {
   const [form, setForm] = useState({ name: "", email: "", profileImage: "" });
   const [loading, setLoading] = useState(true);
 
-  // ✅ Use environment variable for API base
+  
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   // Fetch current profile
