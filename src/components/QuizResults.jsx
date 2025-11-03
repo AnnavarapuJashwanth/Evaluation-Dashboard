@@ -2,6 +2,12 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './QuizResults.css';
 
+// ✅ Common pattern for consistent API handling (Render + localhost)
+const API_URL =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:5000"
+    : import.meta.env.VITE_API_URL;
+
 const QuizResults = ({ results, quiz, answers }) => {
   const navigate = useNavigate();
   

@@ -1,22 +1,8 @@
-/* Features Section */
-.features-section {
+/* === MAIN HEADER === */
+.features-main-header {
   padding: 100px 0;
   background: linear-gradient(135deg, #f9faff 0%, #f0f4ff 100%);
-  position: relative;
-  overflow: hidden;
-}
-
-.features-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 80%, rgba(79, 70, 229, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
-  pointer-events: none;
+  text-align: center;
 }
 
 .section-header {
@@ -56,121 +42,103 @@
   line-height: 1.6;
 }
 
-/* Features Grid */
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 30px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
 
-/* Feature Card */
-.feature-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 40px 30px;
-  text-align: center;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 
-    0 10px 40px rgba(0, 0, 0, 0.1),
-    0 1px 3px rgba(0, 0, 0, 0.05);
+/* === NEW SCROLLING FEATURE SECTION === */
+.feature-scroll-section {
+  min-height: 90vh; /* 90% of the viewport height. Use 100vh for full screen. */
+  width: 100%;
   position: relative;
-  overflow: hidden;
+  display: flex;
+  align-items: center;
+  
+  /* Background Image Settings */
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed; /* Parallax-like effect */
+  color: #ffffff; /* Default text color on top of image */
 }
 
-.feature-card::before {
+/* Dark Overlay for Readability */
+.section-overlay {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(135deg, #4f46e5, #10b981);
-  transform: scaleX(0);
-  transition: transform 0.3s ease;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6); /* Dark overlay. Adjust 0.6 for more/less darkness. */
+  z-index: 1;
 }
 
-.feature-card:hover {
-  transform: translateY(-12px) scale(1.02);
-  box-shadow: 
-    0 25px 60px rgba(0, 0, 0, 0.15),
-    0 5px 15px rgba(0, 0, 0, 0.1);
+/* Wrapper for Content (handles alignment) */
+.feature-content-wrapper {
+  width: 100%;
+  max-width: 1200px; /* Max width of content area */
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  position: relative;
+  z-index: 2; /* Content is above the overlay */
 }
 
-.feature-card:hover::before {
-  transform: scaleX(1);
+.feature-content-wrapper.align-left {
+  justify-content: flex-start;
+}
+
+.feature-content-wrapper.align-right {
+  justify-content: flex-end;
+}
+
+/* The actual text content box */
+.feature-content-box {
+  background: rgba(20, 20, 20, 0.7); /* Semi-transparent dark box for content */
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 550px; /* Max width of the text box */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 /* Feature Icon */
 .feature-icon {
-  position: relative;
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 25px;
+  width: 70px;
+  height: 70px;
+  margin-bottom: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: linear-gradient(135deg, #4f46e5, #10b981);
+  border-radius: 50%;
 }
 
 .feature-icon i {
-  font-size: 2.5rem;
-  color: #4f46e5;
-  position: relative;
-  z-index: 2;
-  transition: all 0.3s ease;
-}
-
-.icon-shape {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #eef2ff, #f0fdf4);
-  border-radius: 50%;
-  transform: scale(0.8);
-  transition: all 0.4s ease;
-  opacity: 0.8;
-}
-
-.feature-card:hover .icon-shape {
-  transform: scale(1.1);
-  opacity: 1;
-  background: linear-gradient(135deg, #4f46e5, #10b981);
-}
-
-.feature-card:hover .feature-icon i {
-  color: white;
-  transform: scale(1.1) rotate(5deg);
+  font-size: 2.2rem;
+  color: #ffffff;
 }
 
 /* Feature Content */
 .feature-title {
-  font-size: 1.5rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: #ffffff;
   margin-bottom: 15px;
-  transition: color 0.3s ease;
-}
-
-.feature-card:hover .feature-title {
-  color: #4f46e5;
 }
 
 .feature-description {
-  color: #6b7280;
-  line-height: 1.6;
-  margin-bottom: 25px;
-  font-size: 1rem;
+  color: #e0e0e0; /* Lighter grey for description */
+  line-height: 1.7;
+  margin-bottom: 30px;
+  font-size: 1.1rem;
 }
 
-/* Feature Button */
+/* Feature Button (Slightly updated for dark bg) */
 .feature-btn {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 24px;
+  padding: 14px 28px;
   background: linear-gradient(135deg, #4f46e5, #10b981);
   color: white;
   text-decoration: none;
@@ -179,26 +147,16 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-}
-
-.feature-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s ease;
+  border: 2px solid transparent;
 }
 
 .feature-btn:hover {
+  background: transparent;
+  border-image: linear-gradient(135deg, #4f46e5, #10b981) 1;
+  border-width: 2px;
+  border-style: solid;
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
-}
-
-.feature-btn:hover::before {
-  left: 100%;
 }
 
 .feature-btn i {
@@ -211,30 +169,32 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .features-section {
-    padding: 60px 0;
+  .feature-scroll-section {
+    min-height: 70vh;
+    background-attachment: scroll; /* Fix parallax on mobile */
   }
   
   .section-title {
     font-size: 2.5rem;
   }
   
-  .features-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
+  .feature-content-wrapper {
+    padding: 0 20px;
+    justify-content: center !important; /* Center on mobile */
   }
   
-  .feature-card {
-    padding: 30px 20px;
+  .feature-content-box {
+    padding: 30px;
+    max-width: 100%; /* Full width on mobile */
+    margin: 40px 0;
   }
   
-  .feature-icon {
-    width: 70px;
-    height: 70px;
-  }
-  
-  .feature-icon i {
+  .feature-title {
     font-size: 2rem;
+  }
+  
+  .feature-description {
+    font-size: 1rem;
   }
 }
 
@@ -242,35 +202,8 @@
   .section-title {
     font-size: 2rem;
   }
-  
-  .feature-title {
-    font-size: 1.3rem;
-  }
-  
-  .feature-description {
-    font-size: 0.9rem;
+
+  .feature-content-box {
+    padding: 25px;
   }
 }
-
-/* Animation for cards on load */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.feature-card {
-  animation: fadeInUp 0.6s ease forwards;
-}
-
-.feature-card:nth-child(1) { animation-delay: 0.1s; }
-.feature-card:nth-child(2) { animation-delay: 0.2s; }
-.feature-card:nth-child(3) { animation-delay: 0.3s; }
-.feature-card:nth-child(4) { animation-delay: 0.4s; }
-.feature-card:nth-child(5) { animation-delay: 0.5s; }
-.feature-card:nth-child(6) { animation-delay: 0.6s; }

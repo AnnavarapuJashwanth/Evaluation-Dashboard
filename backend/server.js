@@ -18,9 +18,11 @@ app.use(express.json());
 
 // ✅ CORS setup with allowed origins
 const allowedOrigins = [
-  "http://localhost:5173",             // Vite default dev server
+  "http://localhost:5173",             
+  "http://localhost:5174",             // Vite default dev server
   "http://localhost:3000",             // CRA dev
   "https://evaluation4297.netlify.app" // Netlify deployed frontend
+
 ];
 
 app.use(cors({

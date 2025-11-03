@@ -3,6 +3,12 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './Quizzes.css';
 
+// ✅ Common Pattern to Reuse (API_URL)
+const API_URL =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:5000"
+    : import.meta.env.VITE_API_URL;
+
 const Quizzes = () => {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,12 +30,8 @@ const Quizzes = () => {
         return;
       }
      
-      // Use absolute URL in development to avoid proxy issues
-      const baseURL = import.meta.env.MODE === 'production' 
-        ? '' 
-        : 'http://localhost:5000';
-      
-      const response = await axios.get(`${baseURL}/api/quizzes`, {
+      // ✅ Use unified API_URL (replaces baseURL)
+      const response = await axios.get(`${API_URL}/api/quizzes`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'

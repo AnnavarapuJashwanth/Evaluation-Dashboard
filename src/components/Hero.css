@@ -1,23 +1,136 @@
+/* === HERO SECTION === */
 .hero-section {
-  min-height: 80vh;
-  background: linear-gradient(135deg, #4b6cb7, #182848);
+  /* We set the background gradient here instead of inline.
+    This is a deeper, more modern blue gradient.
+  */
+  background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
   color: white;
-  border-radius: 0 0 50px 50px;
+  min-height: 90vh; /* A bit taller for more impact */
+  padding: 80px 0;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden; /* Important for clip-path */
+
+  /* This is the "advanced" curved bottom.
+    It's much more modern than border-radius.
+  */
+  clip-path: polygon(0 0, 100% 0, 100% 88%, 0 100%);
 }
 
-.hero-section h1 {
-  font-size: 2.8rem;
+/* === TYPOGRAPHY === */
+.hero-title {
+  /* Using Bootstrap's 'display-4' for size but with custom weight */
+  font-size: clamp(2.5rem, 5vw, 3.5rem); /* Responsive font size */
   font-weight: 700;
   margin-bottom: 20px;
+  line-height: 1.2;
 }
 
-.hero-section p {
-  font-size: 1.1rem;
-  margin-bottom: 30px;
+.hero-lead {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  margin-bottom: 35px;
+  color: rgba(255, 255, 255, 0.85); /* Slightly transparent white */
+  max-width: 90%; /* Prevents text from stretching too wide */
 }
 
-.hero-section button {
-  border-radius: 25px;
-  padding: 10px 25px;
-  font-weight: 500;
+/* === BUTTONS === */
+.hero-buttons .btn {
+  padding: 14px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 50px; /* Pill shape */
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Primary Button (Get Started) */
+.btn-hero-primary {
+  background-color: #ffffff;
+  color: #182848; /* Dark blue text */
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+.btn-hero-primary:hover {
+  background-color: transparent;
+  color: #ffffff;
+  border-color: #ffffff;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.25);
+}
+
+/* Secondary Button (Explore Features) */
+.btn-hero-secondary {
+  background-color: transparent;
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+.btn-hero-secondary:hover {
+  background-color: #ffffff;
+  color: #182848; /* Dark blue text */
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.25);
+}
+
+/* === IMAGE === */
+.hero-image {
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  
+  /* This is the subtle "breathing" animation */
+  animation: subtleBreathe 5s ease-in-out infinite;
+}
+
+@keyframes subtleBreathe {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* === RESPONSIVENESS === */
+@media (max-width: 767px) {
+  .hero-section {
+    min-height: auto;
+    padding: 60px 0;
+    text-align: center;
+    /* Use a simpler clip-path on mobile as the curve 
+      can look strange with less height.
+    */
+    clip-path: polygon(0 0, 100% 0, 100% 95%, 0 100%);
+  }
+  
+  .hero-lead {
+    max-width: 100%;
+    font-size: 1.1rem;
+  }
+  
+  .hero-image {
+    margin-top: 40px;
+    /* Disable breathing animation on mobile if preferred */
+    /* animation: none; */
+  }
+
+  .hero-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+  }
+  
+  .hero-buttons .btn {
+    width: 80%;
+  }
+
+  .btn-hero-primary {
+    margin-right: 0 !important;
+  }
 }
