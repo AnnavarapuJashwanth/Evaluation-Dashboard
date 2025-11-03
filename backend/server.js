@@ -18,18 +18,17 @@ app.use(express.json());
 
 // ✅ CORS setup with allowed origins
 const allowedOrigins = [
-  "http://localhost:5173",             
-  "http://localhost:5174",             // Vite default dev server
-  "http://localhost:3000",             // CRA dev
+  "http://localhost:5173",
+  "http://localhost:5174", // Vite default dev server
+  "http://localhost:3000", // CRA dev
   "https://evaluation4297.netlify.app" // Netlify deployed frontend
-
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps, curl, postman)
     if (!origin) return callback(null, true);
-    
+
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
       console.warn("🚫 Blocked by CORS:", origin);
@@ -59,8 +58,9 @@ app.get("/api/health", (req, res) => res.json({ status: "OK", message: "API runn
 // ✅ Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/dist')));
-  
-  app.get('*', (req, res) => {
+
+  // ✅ FIX: use '/*' instead of '*' (compatible with Express 5+)
+  app.get('/*', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
   });
 }
@@ -75,7 +75,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ✅ 404 handler - FIXED: Use a proper path pattern instead of just '*'
+// ✅ 404 handler
 app.use((req, res, next) => {
   res.status(404).json({
     success: false,
