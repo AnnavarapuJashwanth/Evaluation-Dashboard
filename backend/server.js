@@ -61,14 +61,20 @@ app.get("/api/health", (req, res) =>
 );
 
 // ✅ Serve static files in production
+// ✅ Serve static files in production
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../client/dist")));
+  const clientPath = path.join(__dirname, "../client/dist");
+  app.use(express.static(clientPath));
 
-  // ✅ FIX for Express 5: use regex instead of '*'
-  app.get(/.*/, (req, res) => {
-    res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+  app.use((req, res, next) => {
+    if (req.method === "GET" && !req.path.startsWith("/api")) {
+      res.sendFile(path.join(clientPath, "index.html"));
+    } else {
+      next();
+    }
   });
 }
+
 
 // ✅ Error handling middleware
 app.use((err, req, res, next) => {
