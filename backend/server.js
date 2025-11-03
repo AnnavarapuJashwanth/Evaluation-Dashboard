@@ -62,18 +62,18 @@ app.get("/api/health", (req, res) =>
 
 // ✅ Serve static files in production
 // ✅ Serve static files in production
-if (process.env.NODE_ENV === "production") {
-  const clientPath = path.join(__dirname, "../client/dist");
-  app.use(express.static(clientPath));
+// if (process.env.NODE_ENV === "production") {
+//   const clientPath = path.join(__dirname, "../client/dist");
+//   app.use(express.static(clientPath));
 
-  app.use((req, res, next) => {
-    if (req.method === "GET" && !req.path.startsWith("/api")) {
-      res.sendFile(path.join(clientPath, "index.html"));
-    } else {
-      next();
-    }
-  });
-}
+//   app.use((req, res, next) => {
+//     if (req.method === "GET" && !req.path.startsWith("/api")) {
+//       res.sendFile(path.join(clientPath, "index.html"));
+//     } else {
+//       next();
+//     }
+//   });
+// }
 
 
 // ✅ Error handling middleware
