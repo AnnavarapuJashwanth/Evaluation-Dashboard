@@ -1,6 +1,7 @@
-import vision from "@google-cloud/vision";
-import fs from "fs";
-import path from "path";
+// backend/utils/googleVisionOCR.js
+const vision = require("@google-cloud/vision");
+const fs = require("fs");
+const path = require("path");
 
 /**
  * Creates and configures the Google Cloud Vision client using either:
@@ -11,7 +12,8 @@ import path from "path";
 function createVisionClient() {
   try {
     const secretFilePath = "/etc/secrets/google-cloud-key.json";
-    const localFilePath = path.join(process.cwd(), "backend/config/google-cloud-key.json");
+    // ✅ Fixed path: your config folder is inside the same backend folder
+    const localFilePath = path.join(__dirname, "../config/google-cloud-key.json");
 
     let credentials = null;
 
@@ -40,15 +42,10 @@ function createVisionClient() {
   }
 }
 
-// Export client
-export const visionClient = createVisionClient();
+// Export client and function
+const visionClient = createVisionClient();
 
-/**
- * Perform OCR on an image using Google Vision API
- * @param {string} imagePath - Path or URL of the image
- * @returns {Promise<string>} Extracted text
- */
-export async function extractTextFromImage(imagePath) {
+async function extractTextFromImage(imagePath) {
   try {
     const [result] = await visionClient.textDetection(imagePath);
     const detections = result.textAnnotations;
@@ -58,3 +55,5 @@ export async function extractTextFromImage(imagePath) {
     throw new Error("OCR processing failed. Check Google Vision setup.");
   }
 }
+
+module.exports = { visionClient, extractTextFromImage };
