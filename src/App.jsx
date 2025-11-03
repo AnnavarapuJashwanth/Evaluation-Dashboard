@@ -7,6 +7,10 @@ import Footer from "./components/Footer";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Profile from "./pages/Profile";
+import Assignments from "./pages/Assignments";
+import Mentor from "./pages/Mentor";
+import Quizzes from "./pages/Quizzes";
+import Quiz from "./components/Quiz";
 function App() {
   return (
     <Router>
@@ -34,6 +38,10 @@ function App() {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/profile" element={<Profile />} /> 
+        <Route path="/assignments"element={<Assignments/>}/>
+        <Route path="/mentor" element={<Mentor />} />
+        <Route path="/quizzes" element={<Quizzes />} />
+        <Route path="/quiz/:id" element={<Quiz />} />
       </Routes>
     </Router>
   );

@@ -1,0 +1,18 @@
+/* src/components/Assignments.css */
+
+.comparison-table-container {
+  max-height: 600px;
+  overflow-y: auto;
+  border: 1px solid #dee2e6;
+}
+
+.line-content {
+  margin: 0;
+  white-space: pre-wrap; /* Allows text to wrap */
+  word-break: break-word; /* Breaks long words */
+  font-size: 0.9rem;
+}
+
+.table td, .table th {
+  vertical-align: middle;
+}

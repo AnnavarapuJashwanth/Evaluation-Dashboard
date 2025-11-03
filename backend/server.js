@@ -1,7 +1,9 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const path = require("path");
 const connectDB = require("./config/db");
+const quizRoutes = require('./routes/quizzes');
 
 // Load env vars
 dotenv.config();
@@ -14,39 +16,71 @@ const app = express();
 // ✅ Middleware
 app.use(express.json());
 
-// ✅ CORS setup (allow localhost for dev + Netlify for production)
+// ✅ CORS setup with allowed origins
 const allowedOrigins = [
   "http://localhost:5173",             // Vite default dev server
   "http://localhost:3000",             // CRA dev
-  "https://evaluation4297.netlify.app" // your Netlify deployed frontend
+  "https://evaluation4297.netlify.app" // Netlify deployed frontend
 ];
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) {
-        // Allow requests with no origin (like mobile apps, curl, Postman)
-        callback(null, true);
-      } else if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.warn("🚫 Blocked by CORS:", origin);
-        callback(null, false); // don’t crash the server
-      }
-    },
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, postman)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      console.warn("🚫 Blocked by CORS:", origin);
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  optionsSuccessStatus: 200
+}));
 
 // ✅ Routes
 const authRoutes = require("./routes/auth");
 const profileRoutes = require("./routes/profile");
+const assignmentRoutes = require("./routes/assignments");
+const mentorRoutes = require("./routes/mentor");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/assignments", assignmentRoutes);
+app.use("/api/mentor", mentorRoutes);
+app.use('/api/quizzes', quizRoutes);
 
-// ✅ Default route
-app.get("/", (req, res) => res.send("API running"));
+// ✅ Health check route
+app.get("/api/health", (req, res) => res.json({ status: "OK", message: "API running 🚀" }));
+
+// ✅ Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/dist')));
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+  });
+}
+
+// ✅ Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    message: 'Something went wrong!',
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+  });
+});
+
+// ✅ 404 handler - FIXED: Use a proper path pattern instead of just '*'
+app.use((req, res, next) => {
+  res.status(404).json({
+    success: false,
+    message: 'API endpoint not found',
+    path: req.originalUrl
+  });
+});
 
 // ✅ Start server
 const PORT = process.env.PORT || 5000;
