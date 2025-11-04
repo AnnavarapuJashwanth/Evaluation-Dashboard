@@ -11,6 +11,7 @@ import Assignments from "./pages/Assignments";
 import Mentor from "./pages/Mentor";
 import Quizzes from "./pages/Quizzes";
 import Quiz from "./components/Quiz";
+import QuizResults from "./components/QuizResults";
 function App() {
   return (
     <Router>
@@ -42,6 +43,7 @@ function App() {
         <Route path="/mentor" element={<Mentor />} />
         <Route path="/quizzes" element={<Quizzes />} />
         <Route path="/quiz/:id" element={<Quiz />} />
+        <Route path="/quiz-results" element={<QuizResults />} />
       </Routes>
     </Router>
   );

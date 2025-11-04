@@ -1,13 +1,32 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import "./Quiz.css";
 
-// ✅ Common pattern for consistent API handling (Render + localhost)
+// Handle both local dev and deployed Render API
 const API_URL =
   import.meta.env.MODE === "development"
     ? "http://localhost:5000"
     : import.meta.env.VITE_API_URL;
+
+// Animation variants for Framer Motion
+const containerVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      staggerChildren: 0.1, // Animate children one by one
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: { opacity: 1, x: 0 },
+};
 
 const Quiz = () => {
   const { id } = useParams();
@@ -20,15 +39,25 @@ const Quiz = () => {
   const [submitted, setSubmitted] = useState(false);
   const [result, setResult] = useState(null);
 
+  // State for Timer
+  const [timeLeft, setTimeLeft] = useState(null);
+  const [timerWarning, setTimerWarning] = useState(false);
+  const [timerDanger, setTimerDanger] = useState(false);
+
   useEffect(() => {
     fetchQuiz();
   }, [id]);
 
+  // Helper function to format time
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+  };
+
   const fetchQuiz = async () => {
     try {
       const token = localStorage.getItem("token");
-      console.log("Fetching quiz with token:", token ? "Present" : "Missing");
-
       if (!token) {
         setError("Authentication required. Please log in again.");
         setLoading(false);
@@ -36,17 +65,14 @@ const Quiz = () => {
       }
 
       const res = await axios.get(`${API_URL}/api/quizzes/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      console.log("API Response:", res.data);
 
       if (res.data.success) {
         setQuiz(res.data.data);
         setAnswers(new Array(res.data.data.questions.length).fill(null));
+        const durationInSeconds = (res.data.data.duration || 10) * 60;
+        setTimeLeft(durationInSeconds);
       } else {
         setError(res.data.message || "Failed to fetch quiz");
       }
@@ -54,31 +80,23 @@ const Quiz = () => {
       setLoading(false);
     } catch (err) {
       console.error("Error fetching quiz:", err);
-      console.error("Error response:", err.response?.data);
-
-      if (err.response?.status === 401) {
-        setError("Your session has expired. Please log in again.");
-        localStorage.removeItem("token");
-        setTimeout(() => navigate("/login"), 2000);
-      } else {
-        setError(
-          err.response?.data?.message ||
-            "Failed to load quiz. Please try again later."
-        );
-      }
-
-      setQuiz(null);
+      setError("Failed to load quiz. Please try again later.");
       setLoading(false);
     }
   };
 
-  const handleAnswerChange = (index, option) => {
+  const handleAnswerChange = (index, optionIndex) => {
     const newAnswers = [...answers];
-    newAnswers[index] = option;
+    newAnswers[index] = optionIndex;
     setAnswers(newAnswers);
   };
 
-  const handleSubmit = async () => {
+  // Using React.useCallback to stabilize handleSubmit function
+  const handleSubmit = React.useCallback(async () => {
+    if (submitted) return; // Prevent double submission
+
+    setSubmitted(true); // Set submitted true *immediately*
+
     if (!quiz) return;
 
     try {
@@ -88,9 +106,27 @@ const Quiz = () => {
         return;
       }
 
+      const formattedAnswers = answers.map((selectedOption, index) => ({
+        questionIndex: index,
+        selectedOption:
+          selectedOption !== null && selectedOption !== undefined
+            ? selectedOption
+            : -1,
+        timeSpent: 0,
+      }));
+
+      // Prevent submission if quiz has no questions
+      if (formattedAnswers.length === 0) {
+        setError("This quiz has no questions and cannot be submitted.");
+        return;
+      }
+      
+      const durationInSeconds = (quiz.duration || 10) * 60;
+      const calculatedTimeSpent = durationInSeconds - (timeLeft || 0);
+
       const res = await axios.post(
         `${API_URL}/api/quizzes/${id}/submit`,
-        { answers },
+        { answers: formattedAnswers, timeSpent: calculatedTimeSpent },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -99,25 +135,52 @@ const Quiz = () => {
         }
       );
 
-      console.log("Submit Response:", res.data);
-
       if (res.data.success) {
-        setResult(res.data.data);
-        setSubmitted(true);
+        setResult(res.data.data); // This data now includes quizReview from your backend
       } else {
         setError(res.data.message || "Failed to submit quiz");
       }
     } catch (err) {
-      console.error("Error submitting quiz:", err);
+      
+      // ✅ --- THIS IS THE FIX --- ✅
+      // This will log the *specific error message* from your backend.
+      console.error(
+        "Backend submission error:",
+        err.response ? err.response.data : err.message
+      );
+      // ✅ --------------------------
+
       setError(
         err.response?.data?.message || "Failed to submit quiz. Try again later."
       );
     }
-  };
+  }, [quiz, submitted, answers, id, timeLeft]);
+
+  // useEffect for Timer Countdown
+  useEffect(() => {
+    if (timeLeft === null || submitted) return;
+
+    if (timeLeft <= 0) {
+      handleSubmit();
+      return;
+    }
+
+    const intervalId = setInterval(() => {
+      setTimeLeft((prevTime) => prevTime - 1);
+    }, 1000);
+
+    setTimerDanger(timeLeft <= 60); // 1 minute left
+    setTimerWarning(timeLeft > 60 && timeLeft <= 300); // 5 minutes left
+
+    return () => clearInterval(intervalId);
+  }, [timeLeft, submitted, handleSubmit]);
+
 
   const handleRetry = () => {
     setLoading(true);
     setError("");
+    setSubmitted(false);
+    setResult(null);
     fetchQuiz();
   };
 
@@ -125,90 +188,182 @@ const Quiz = () => {
     navigate("/login");
   };
 
+  const answeredQuestions = answers.filter((a) => a !== null).length;
+  const totalQuestions = quiz?.questions?.length || 0;
+  const progressPercent =
+    totalQuestions > 0 ? (answeredQuestions / totalQuestions) * 100 : 0;
+
   if (loading) return <div className="loading">Loading quiz...</div>;
 
   if (error.includes("Authentication") || error.includes("session")) {
     return (
-      <div className="quiz-container">
+      <motion.div
+        className="quiz-container container"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
         <div className="error auth-error">
           <p>{error}</p>
-          <button onClick={handleLoginRedirect} className="login-btn">
+          <motion.button
+            onClick={handleLoginRedirect}
+            className="login-btn btn btn-primary"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
             Go to Login
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   if (error)
     return (
-      <div className="quiz-container">
+      <motion.div
+        className="quiz-container container"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
         <div className="error">
           <p>{error}</p>
-          <button onClick={handleRetry} className="retry-btn">
+          <motion.button
+            onClick={handleRetry}
+            className="retry-btn btn btn-warning"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
             Retry
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
     );
 
   if (!quiz) return <div className="no-quiz">No quiz found.</div>;
 
-  if (submitted)
+  // This is the "Submitted" screen from your image. It shows while 'result' is being set.
+  if (submitted && !result) {
+    return <div className="loading">Submitting quiz, please wait...</div>
+  }
+
+  // This is the "Submitted" screen from your image.
+  if (submitted && result)
     return (
-      <div className="quiz-results">
+      <motion.div
+        className="quiz-results"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+      >
         <h2>Quiz Submitted Successfully!</h2>
         <p>
           You scored {result?.score ?? 0} out of{" "}
           {quiz.questions?.length ?? "N/A"}.
         </p>
-        <button
+        <p>
+          Percentage: {result?.percentageScore?.toFixed(2) ?? 0}%{" "}
+          {result?.passed ? "✅ Passed" : "❌ Failed"}
+        </p>
+
+        {/* This passes the full result object to the results page */}
+        <motion.button
           onClick={() =>
-            navigate("/results", {
-              state: { results: result, quiz, answers },
+            navigate("/quiz-results", {
+              state: { results: result }, 
             })
           }
-          className="view-results-btn"
+          className="view-results-btn btn btn-success"
+          whileHover={{ scale: 1.05 }}
         >
           View Detailed Results
-        </button>
-        <button onClick={() => navigate("/quizzes")} className="back-btn">
+        </motion.button>
+        <motion.button
+          onClick={() => navigate("/quizzes")}
+          className="back-btn btn btn-secondary"
+          whileHover={{ scale: 1.05 }}
+        >
           Back to Quizzes
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
     );
 
+  // This is the main quiz view
   return (
-    <div className="quiz-container">
-      <h1>{quiz.title}</h1>
+    <motion.div
+      className="quiz-container container"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <div className="quiz-header">
+        <h1>{quiz.title}</h1>
+        {timeLeft !== null && (
+          <div
+            className={`timer ${
+              timerDanger ? "danger" : timerWarning ? "warning" : ""
+            }`}
+          >
+            <i className="fas fa-clock" style={{ marginRight: "8px" }}></i>
+            {formatTime(timeLeft)}
+          </div>
+        )}
+      </div>
       <p className="quiz-description">{quiz.description}</p>
 
+      <div className="progress-container">
+        <div className="progress-bar">
+          <motion.div
+            className="progress"
+            initial={{ width: 0 }}
+            animate={{ width: `${progressPercent}%` }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+          />
+        </div>
+        <div className="progress-text">
+          {answeredQuestions} of {totalQuestions} questions answered
+        </div>
+      </div>
+
       {quiz.questions.map((q, index) => (
-        <div key={index} className="question-card">
+        <motion.div
+          key={index}
+          className="question-card"
+          variants={itemVariants}
+        >
           <h3>
             Q{index + 1}. {q.question}
           </h3>
           <div className="options">
             {q.options.map((option, i) => (
-              <label key={i} className="option-label">
+              <motion.label
+                key={i}
+                className="option-label"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <input
                   type="radio"
                   name={`question-${index}`}
-                  value={option}
-                  checked={answers[index] === option}
-                  onChange={() => handleAnswerChange(index, option)}
+                  value={i}
+                  checked={answers[index] === i}
+                  onChange={() => handleAnswerChange(index, i)}
                 />
-                {option}
-              </label>
+                <span className="option-custom-radio"></span>
+                <span className="option-text">{option}</span>
+              </motion.label>
             ))}
           </div>
-        </div>
+        </motion.div>
       ))}
 
-      <button onClick={handleSubmit} className="submit-quiz-btn">
+      <motion.button
+        onClick={handleSubmit}
+        className="submit-quiz-btn btn btn-primary btn-lg"
+        whileHover={{ scale: 1.03, y: -3 }}
+        whileTap={{ scale: 0.98, y: -1 }}
+        transition={{ type: "spring", stiffness: 300 }}
+      >
         Submit Quiz
-      </button>
-    </div>
+      </motion.button>
+    </motion.div>
   );
 };
 

@@ -8,7 +8,7 @@ function NavBar() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const [user, setUser] = useState(null);
-
+  
   // Fetch user profile if logged in
   useEffect(() => {
     const fetchUser = async () => {

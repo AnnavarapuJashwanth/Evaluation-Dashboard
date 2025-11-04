@@ -22,6 +22,7 @@ const allowedOrigins = [
   "http://localhost:5174", // Vite default dev server
   "http://localhost:3000", // CRA dev
   "https://evaluation4297.netlify.app" // Netlify deployed frontend
+  
 ];
 
 app.use(
