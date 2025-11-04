@@ -22,7 +22,7 @@ const allowedOrigins = [
   "http://localhost:5174", // Vite default dev server
   "http://localhost:3000", // CRA dev
   "https://evaluation4297.netlify.app" // Netlify deployed frontend
-  
+
 ];
 
 app.use(
@@ -57,7 +57,7 @@ app.use("/api/mentor", mentorRoutes);
 app.use("/api/quizzes", quizRoutes);
 
 // ✅ Health check route
-app.get("/api/health", (req, res) =>
+app.get("/", (req, res) =>
   res.json({ status: "OK", message: "API running 🚀" })
 );
 
